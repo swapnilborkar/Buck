@@ -58,14 +58,17 @@ public class Constants {
             "Singapore Dollar", "Thai Baht", "Turkish Lira", "US Dollar", "South African Rand"
     };
 
-    // Constant for notification
+    // CONSTANTS FOR NOTIFICATION
     public static final int NOTIFICATION_ID = 100;
 
-    // Constants for SharedPreferences
+    // CONSTANTS FOR SHARED PREFERENCES
     public static final String CURRENCY_PREFERENCES = "CURRENCY_PREFERENCES";
     public static final String BASE_CURRENCY = "BASE_CURRENCY";
     public static final String TARGET_CURRENCY = "TARGET_CURRENCY";
     public static final String SERVICE_REPETITION = "SERVICE_REPETITION";
     public static final String NUM_DOWNLOADS = "NUM_DOWNLOADS";
 
+    //CONSTANTS FOR WEB CONNECTION
+    public static final int CONNECTION_TIMEOUT = 10000;
+    public static final int READ_TIMEOUT = 10000;
 }
