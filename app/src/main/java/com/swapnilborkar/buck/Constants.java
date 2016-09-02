@@ -14,7 +14,6 @@ public class Constants {
     public static final String RATES = "rates";
 
     //CONSTANTS USED FOR CURRENCY SERVICE AND RECEIVER
-
     public static final String URL = "url";
     public static final String RECEIVER = "receiver";
     public static final String RESULT = "result";

@@ -3,6 +3,7 @@ package com.swapnilborkar.buck.helpers;
 import com.swapnilborkar.buck.Constants;
 import com.swapnilborkar.buck.value_objects.Currency;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
@@ -10,17 +11,11 @@ import org.json.JSONObject;
  */
 public class CurrencyParserHelper {
 
-    public static Currency parseCurrency(JSONObject object, String currencyName) {
+    public static Currency parseCurrency(JSONObject obj, String currencyName) {
         Currency currency = new Currency();
-        currency.setBase(object.optString(Constants.BASE));
-        currency.setDate(object.optString(Constants.DATE));
-        JSONObject rateObject = object.optJSONObject(Constants.RATES);
-        if (rateObject != null) {
-            currency.setRate(rateObject.optDouble(currencyName));
-        }
+        currency.setBase(obj.optString(Constants.BASE));
 
-        currency.setName(currencyName);
-        return currency;
+        return null;
     }
 
 }
