@@ -1,15 +1,22 @@
 package com.swapnilborkar.buck;
 
+import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.View;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.widget.Toast;
 
-public class MainActivity extends AppCompatActivity {
+import com.swapnilborkar.buck.receivers.CurrencyReceiver;
+import com.swapnilborkar.buck.services.CurrencyService;
+import com.swapnilborkar.buck.utils.LogUtils;
+import com.swapnilborkar.buck.value_objects.Currency;
+
+public class MainActivity extends AppCompatActivity implements CurrencyReceiver.Receiver {
+
+    public static final String LOG_TAG = MainActivity.class.getName();
+    private String mBaseCurrency = Constants.CURRENCY_CODES[15];
+    private String mTargetCurrency = Constants.CURRENCY_CODES[30];
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -18,35 +25,83 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+        retrieveCurrencyExchangeRate();
+
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
+
+//    @Override
+//    public boolean onCreateOptionsMenu(Menu menu) {
+//        // Inflate the menu; this adds items to the action bar if it is present.
+//        getMenuInflater().inflate(R.menu.menu_main, menu);
+//        return true;
+//    }
+//
+//    @Override
+//    public boolean onOptionsItemSelected(MenuItem item) {
+//        // Handle action bar item clicks here. The action bar will
+//        // automatically handle clicks on the Home/Up button, so long
+//        // as you specify a parent activity in AndroidManifest.xml.
+//        int id = item.getItemId();
+//
+//        //noinspection SimplifiableIfStatement
+//        if (id == R.id.action_settings) {
+//            return true;
+//        }
+//
+//        return super.onOptionsItemSelected(item);
+//}
+
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
+    public void onReceiveResult(int resultCode, final Bundle resultData) {
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        switch (resultCode) {
+            case Constants.STATUS_RUNNING:
+                LogUtils.log(LOG_TAG, "Currency service is running!");
+                break;
+
+            case Constants.STATUS_FINISHED:
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Currency currencyParcel = resultData.getParcelable(Constants.RESULT);
+
+                        if (currencyParcel != null) {
+                            String message =
+                                    "Currency" + currencyParcel.getBase() +
+                                            " - " + currencyParcel.getName() +
+                                            " : " + currencyParcel.getRate();
+                            LogUtils.log(LOG_TAG, message);
+                        }
+                    }
+                });
+                break;
+
+            case Constants.STATUS_ERROR:
+                String error = resultData.getString(Intent.EXTRA_TEXT);
+                LogUtils.log(LOG_TAG, error);
+                Toast.makeText(this, error, Toast.LENGTH_SHORT).show();
         }
-
-        return super.onOptionsItemSelected(item);
     }
+
+    private void retrieveCurrencyExchangeRate() {
+
+        CurrencyReceiver receiver = new CurrencyReceiver(new Handler());
+        receiver.setReceiver(this);
+        Intent intent = new Intent(Intent.ACTION_SYNC, null, getApplicationContext(), CurrencyService.class);
+        intent.setExtrasClassLoader(CurrencyService.class.getClassLoader());
+
+        Bundle bundle = new Bundle();
+        String url = Constants.CURRENCY_URL + mBaseCurrency;
+        bundle.putString(Constants.URL, url);
+        bundle.putParcelable(Constants.RECEIVER, receiver);
+        bundle.putInt(Constants.REQUEST_ID, Constants.REQUEST_ID_NUM);
+        bundle.putString(Constants.CURRENCY_NAME, mTargetCurrency);
+        bundle.putString(Constants.CURRENCY_BASE, mBaseCurrency);
+        intent.putExtra(Constants.BUNDLE, bundle);
+        startService(intent);
+
+    }
+
 }

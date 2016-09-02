@@ -59,6 +59,7 @@ public class Constants {
 
     // CONSTANTS FOR NOTIFICATION
     public static final int NOTIFICATION_ID = 100;
+    public static final int REQUEST_ID_NUM = 101;
 
     // CONSTANTS FOR SHARED PREFERENCES
     public static final String CURRENCY_PREFERENCES = "CURRENCY_PREFERENCES";

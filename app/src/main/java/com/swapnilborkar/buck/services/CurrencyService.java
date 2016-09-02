@@ -51,12 +51,22 @@ public class CurrencyService extends IntentService {
         }
 
         if (WebServiceUtils.hasInternetConnection(getApplicationContext())) {
+            try {
             JSONObject jsonObject = WebServiceUtils.requestJsonObject(url);
             if (jsonObject != null) {
                 Currency currency = CurrencyParserHelper.parseCurrency(jsonObject, currencyName);
                 bundle.putParcelable(Constants.RESULT, currency);
                 receiverForSending.send(Constants.STATUS_FINISHED, bundle);
             }
+            } catch (Exception e) {
+                bundle.putString(Intent.EXTRA_TEXT, e.toString());
+                receiverForSending.send(Constants.STATUS_ERROR, bundle);
+            }
+        } else {
+            LogUtils.log(LOG_TAG, "No internet connection!");
         }
+        LogUtils.log(LOG_TAG, "Currency service has stopped!");
+        stopSelf();
+
     }
 }
