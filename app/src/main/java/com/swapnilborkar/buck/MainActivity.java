@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.widget.Toast;
 
 import com.swapnilborkar.buck.receivers.CurrencyReceiver;
@@ -15,6 +14,8 @@ import com.swapnilborkar.buck.value_objects.Currency;
 public class MainActivity extends AppCompatActivity implements CurrencyReceiver.Receiver {
 
     public static final String LOG_TAG = MainActivity.class.getName();
+
+    //CURRENCY CONVERSION BASE AND TARGET FROM CONSTANT ARRAYS
     private String mBaseCurrency = Constants.CURRENCY_CODES[15];
     private String mTargetCurrency = Constants.CURRENCY_CODES[30];
 
@@ -22,8 +23,7 @@ public class MainActivity extends AppCompatActivity implements CurrencyReceiver.
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+
 
         retrieveCurrencyExchangeRate();
 
@@ -69,9 +69,9 @@ public class MainActivity extends AppCompatActivity implements CurrencyReceiver.
 
                         if (currencyParcel != null) {
                             String message =
-                                    "Currency" + currencyParcel.getBase() +
+                                    "Currency: " + currencyParcel.getBase() +
                                             " - " + currencyParcel.getName() +
-                                            " : " + currencyParcel.getRate();
+                                            ": " + currencyParcel.getRate();
                             LogUtils.log(LOG_TAG, message);
                         }
                     }

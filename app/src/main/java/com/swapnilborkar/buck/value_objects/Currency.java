@@ -14,26 +14,14 @@ public class Currency implements Parcelable {
     private String name;
     private long id;
 
-    protected Currency(Parcel in) {
-        rate = in.readDouble();
-        date = in.readString();
-        base = in.readString();
-        name = in.readString();
-        id = in.readLong();
-    }
-
     @Override
     public int describeContents() {
         return 0;
     }
 
     @Override
-    public void writeToParcel(Parcel parcel, int i) {
-        parcel.writeDouble(rate);
-        parcel.writeString(date);
-        parcel.writeString(base);
-        parcel.writeString(name);
-        parcel.writeLong(id);
+    public void writeToParcel(Parcel dest, int flags) {
+
     }
 
     public double getRate() {
@@ -75,4 +63,6 @@ public class Currency implements Parcelable {
     public void setId(long id) {
         this.id = id;
     }
+
+
 }
