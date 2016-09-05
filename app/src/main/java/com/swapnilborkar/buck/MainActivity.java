@@ -1,11 +1,14 @@
 package com.swapnilborkar.buck;
 
 import android.content.Intent;
+import android.database.SQLException;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.Toast;
 
+import com.swapnilborkar.buck.database.CurrencyDatabaseAdapter;
+import com.swapnilborkar.buck.database.CurrencyTableHelper;
 import com.swapnilborkar.buck.receivers.CurrencyReceiver;
 import com.swapnilborkar.buck.services.CurrencyService;
 import com.swapnilborkar.buck.utils.LogUtils;
@@ -18,15 +21,14 @@ public class MainActivity extends AppCompatActivity implements CurrencyReceiver.
     //CURRENCY CONVERSION BASE AND TARGET FROM CONSTANT ARRAYS
     private String mBaseCurrency = Constants.CURRENCY_CODES[15];
     private String mTargetCurrency = Constants.CURRENCY_CODES[30];
+    private CurrencyTableHelper currencyTableHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-
+        initDb();
         retrieveCurrencyExchangeRate();
-
     }
 
 
@@ -73,6 +75,20 @@ public class MainActivity extends AppCompatActivity implements CurrencyReceiver.
                                             " - " + currencyParcel.getName() +
                                             ": " + currencyParcel.getRate();
                             LogUtils.log(LOG_TAG, message);
+                            long id = currencyTableHelper.insertCurrency(currencyParcel);
+                            Currency currency = new Currency();
+                            try {
+                                currency = currencyTableHelper.getCurrency(id);
+                            } catch (SQLException e) {
+                                e.printStackTrace();
+                                LogUtils.log(LOG_TAG, "Currency retrieval failed!");
+                            }
+
+                            if (currency != null) {
+                                String dbmessage = "Currency (DB): " + currency.getBase() + " - "
+                                        + currency.getName() + " : " + currency.getRate();
+                                LogUtils.log(LOG_TAG, dbmessage);
+                            }
                         }
                     }
                 });
@@ -83,6 +99,11 @@ public class MainActivity extends AppCompatActivity implements CurrencyReceiver.
                 LogUtils.log(LOG_TAG, error);
                 Toast.makeText(this, error, Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private void initDb() {
+        CurrencyDatabaseAdapter currencyDatabaseAdapter = new CurrencyDatabaseAdapter(this);
+        currencyTableHelper = new CurrencyTableHelper(currencyDatabaseAdapter);
     }
 
     private void retrieveCurrencyExchangeRate() {

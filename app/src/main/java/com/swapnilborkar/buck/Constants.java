@@ -28,12 +28,12 @@ public class Constants {
     //CONSTANTS USED FOR DATABASE & TABLE
     public static final String DATABASE_NAME = "CurrencyDB";
 
-    public static final String DATABASE_TABLE = "currencies";
+    public static final String CURRENCY_TABLE = "currencies";
     public static final String KEY_ID = "id";
     public static final String KEY_BASE = "base";
     public static final String KEY_DATE = "date";
     public static final String KEY_RATE = "rate";
-    public static final String NAME = "name";
+    public static final String KEY_NAME = "name";
 
     //MAX RETRIEVALS IN BACKGROUND
     public static final int MAX_DOWNLOADS = 5;
