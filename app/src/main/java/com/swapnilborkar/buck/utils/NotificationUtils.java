@@ -2,6 +2,7 @@ package com.swapnilborkar.buck.utils;
 
 import android.app.ActivityManager;
 import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
@@ -11,7 +12,9 @@ import android.media.RingtoneManager;
 import android.os.Build;
 import android.support.v4.app.NotificationCompat;
 import android.text.TextUtils;
+import android.widget.Toast;
 
+import com.swapnilborkar.buck.Constants;
 import com.swapnilborkar.buck.MainActivity;
 import com.swapnilborkar.buck.R;
 
@@ -50,7 +53,12 @@ public class NotificationUtils {
                     .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), icon))
                     .setContentText(message).build();
 
+            NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+            notificationManager.notify(Constants.NOTIFICATION_ID, notification);
+        } else {
+            Toast.makeText(context, message, Toast.LENGTH_LONG).show();
         }
+
     }
 
     private static boolean isAppInBackground(Context context) {
