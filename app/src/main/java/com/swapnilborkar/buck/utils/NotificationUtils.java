@@ -81,7 +81,7 @@ public class NotificationUtils {
 
         }
 
-        //IF BUILD VERSION < KITKAT
+        //IF BUILD VERSION <= KITKAT
         else {
             List<ActivityManager.RunningTaskInfo> taskInfo = activityManager.getRunningTasks(1);
             ComponentName componentName = taskInfo.get(0).topActivity;

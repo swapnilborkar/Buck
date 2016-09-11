@@ -22,7 +22,7 @@ public class MainActivity extends AppCompatActivity implements CurrencyReceiver.
     private String mBaseCurrency = Constants.CURRENCY_CODES[15];
     private String mTargetCurrency = Constants.CURRENCY_CODES[30];
     private CurrencyTableHelper currencyTableHelper;
-
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
