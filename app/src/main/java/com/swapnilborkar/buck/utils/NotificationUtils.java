@@ -25,8 +25,6 @@ import java.util.List;
  */
 public class NotificationUtils {
 
-    public static final String LOG_TAG = NotificationUtils.class.getName();
-
     public static void showNotificationMessage(Context context, String title, String message) {
         if (TextUtils.isEmpty(message)) {
             return;
@@ -47,11 +45,12 @@ public class NotificationUtils {
                     .setWhen(0)
                     .setAutoCancel(true)
                     .setContentTitle(title)
+                    .setContentText(message)
                     .setStyle(inboxStyle)
                     .setContentIntent(resultPendingIntent)
                     .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
                     .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), icon))
-                    .setContentText(message).build();
+                    .build();
 
             NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
             notificationManager.notify(Constants.NOTIFICATION_ID, notification);
@@ -61,7 +60,7 @@ public class NotificationUtils {
 
     }
 
-    private static boolean isAppInBackground(Context context) {
+    public static boolean isAppInBackground(Context context) {
         boolean isInBackground = true;
         ActivityManager activityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
 
