@@ -7,10 +7,10 @@ import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.BitmapFactory;
 import android.media.RingtoneManager;
 import android.os.Build;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.widget.Toast;
 
@@ -41,15 +41,13 @@ public class NotificationUtils {
 
             Notification notification = builder
                     .setSmallIcon(icon)
-                    .setTicker(title)
-                    .setWhen(0)
-                    .setAutoCancel(true)
                     .setContentTitle(title)
                     .setContentText(message)
-                    .setStyle(inboxStyle)
+                    .setWhen(0)
+                    .setAutoCancel(true)
                     .setContentIntent(resultPendingIntent)
                     .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
-                    .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), icon))
+                    .setColor(ContextCompat.getColor(context, R.color.colorPrimary))
                     .build();
 
             NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
