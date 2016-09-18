@@ -1,4 +1,14 @@
 <resources>
     <string name="app_name">Buck</string>
     <string name="action_settings">Settings</string>
+    <string name="currency_prompt">Select service frequency</string>
+    <string-array name="currency_time">
+        <item>Repeat every minute</item>
+        <item>Repeat every 2 minutes</item>
+        <item>Repeat every 5 minutes</item>
+        <item>Repeat every 20 minutes</item>
+        <item>Repeat every hour</item>
+        <item>Repeat every day</item>
+        <item>OFF</item>
+    </string-array>
 </resources>
