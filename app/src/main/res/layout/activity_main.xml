@@ -96,6 +96,7 @@
                     android:padding="24dp"
                     android:textColor="@color/materialWhite"
                     android:textSize="14sp" />
+
             </ScrollView>
         </android.support.design.widget.CoordinatorLayout>
 
