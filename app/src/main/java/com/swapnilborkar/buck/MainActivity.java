@@ -2,6 +2,7 @@ package com.swapnilborkar.buck;
 
 import android.content.Intent;
 import android.database.SQLException;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.CoordinatorLayout;
@@ -10,6 +11,8 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Spinner;
@@ -115,7 +118,7 @@ public class MainActivity extends AppCompatActivity implements CurrencyReceiver.
 
             case R.id.action_show_logs:
                 mIsLogVisible = !mIsLogVisible;
-                item.setIcon(mIsLogVisible ? R.mipmap.ic_keyboard_hide : R.mipmap.ic_keyboard);
+                item.setIcon(mIsLogVisible ? R.drawable.ic_keyboard_hide : R.drawable.ic_keyboard);
                 mLogLayout.setVisibility(mIsLogVisible ? View.VISIBLE : View.GONE);
                 break;
 
@@ -195,6 +198,12 @@ public class MainActivity extends AppCompatActivity implements CurrencyReceiver.
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            Window window = getWindow();
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            window.setStatusBarColor(getResources().getColor(R.color.colorPrimaryDark));
+        }
     }
 
     private void initSpinner() {
@@ -207,6 +216,8 @@ public class MainActivity extends AppCompatActivity implements CurrencyReceiver.
                 spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                     @Override
                     public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+
+                        ((TextView) view).setTextColor(getResources().getColor(R.color.materialWhite));
                         SharedPreferencesUtils.updateServiceRepetition(MainActivity.this, i);
                         mServiceRepetition = i;
                         if (i > AlarmUtils.REPEAT.values().length) {

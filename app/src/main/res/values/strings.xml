@@ -5,12 +5,12 @@
     <string name="log_visibility">Log Visibility</string>
     <string name="clear_logs">Clear Logs</string>
     <string-array name="currency_time">
-        <item>Repeat every minute</item>
-        <item>Repeat every 2 minutes</item>
-        <item>Repeat every 5 minutes</item>
-        <item>Repeat every 20 minutes</item>
-        <item>Repeat every hour</item>
-        <item>Repeat every day</item>
-        <item>OFF</item>
+        <item>Every Minute</item>
+        <item>Every 2 Minutes</item>
+        <item>Every 5 minutes</item>
+        <item>Every 20 minutes</item>
+        <item>Every Hour</item>
+        <item>Every Day</item>
+        <item>Off</item>
     </string-array>
 </resources>

@@ -47,8 +47,8 @@ public class CurrencyAdapter extends BaseAdapter {
             view.setTag(viewHolder);
         } else {
             viewHolder = (ViewHolder) view.getTag();
-            viewHolder.textView.setText(Constants.CURRENCY_NAMES[i] + "(" + Constants.CURRENCY_CODES[i] + ")");
         }
+        viewHolder.textView.setText(Constants.CURRENCY_NAMES[i] + "(" + Constants.CURRENCY_CODES[i] + ")");
         return view;
     }
 
