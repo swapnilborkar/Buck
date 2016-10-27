@@ -2,11 +2,14 @@ package com.swapnilborkar.buck;
 
 import android.content.Intent;
 import android.database.SQLException;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -19,6 +22,14 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.Legend;
+import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.components.YAxis;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.data.LineData;
+import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.utils.ColorTemplate;
 import com.swapnilborkar.buck.adapters.CurrencyAdapter;
 import com.swapnilborkar.buck.database.CurrencyDatabaseAdapter;
 import com.swapnilborkar.buck.database.CurrencyTableHelper;
@@ -30,6 +41,7 @@ import com.swapnilborkar.buck.utils.NotificationUtils;
 import com.swapnilborkar.buck.utils.SharedPreferencesUtils;
 import com.swapnilborkar.buck.value_objects.Currency;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 public class MainActivity extends AppCompatActivity implements CurrencyReceiver.Receiver {
@@ -39,14 +51,17 @@ public class MainActivity extends AppCompatActivity implements CurrencyReceiver.
     //CURRENCY CONVERSION BASE AND TARGET FROM CONSTANT ARRAYS
     private String mBaseCurrency = Constants.CURRENCY_CODES[15];
     private String mTargetCurrency = Constants.CURRENCY_CODES[30];
-    private CurrencyTableHelper currencyTableHelper;
+    private CurrencyTableHelper mCurrencyTableHelper;
 
     private int mServiceRepetition = AlarmUtils.REPEAT.REPEAT_EVERY_MINUTE.ordinal();
 
     private CoordinatorLayout mLogLayout;
+    private FloatingActionButton floatingActionButton;
     private Boolean mIsLogVisible = true;
+    private Boolean mIsFabVisible = true;
     private ListView mBaseCurrencyList;
     private ListView mTargetCurrencyList;
+    private LineChart mLineChart;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,9 +74,45 @@ public class MainActivity extends AppCompatActivity implements CurrencyReceiver.
         initToolbar();
         initSpinner();
         initCurrencyList();
+        initLineChart();
+        addActionButtonListener();
         showLogs();
 
         mLogLayout = (CoordinatorLayout) findViewById(R.id.logLayout);
+
+    }
+
+    private void initLineChart() {
+
+        mLineChart = (LineChart) findViewById(R.id.lineChart);
+        mLineChart.setNoDataText("No Data Available");
+        mLineChart.setHighlightEnabled(true);
+        mLineChart.setTouchEnabled(true);
+        mLineChart.setDragEnabled(true);
+        mLineChart.setScaleEnabled(true);
+        mLineChart.setDrawGridBackground(false);
+        mLineChart.setPinchZoom(true);
+
+        LineData lineData = new LineData();
+        lineData.setValueTextColor(Color.BLUE);
+        mLineChart.setData(lineData);
+
+        Legend legend = mLineChart.getLegend();
+        legend.setForm(Legend.LegendForm.LINE);
+        legend.setTextColor(ColorTemplate.getHoloBlue());
+
+        XAxis xAxis = mLineChart.getXAxis();
+        xAxis.setTextColor(Color.BLACK);
+        xAxis.setDrawGridLines(false);
+        xAxis.setAvoidFirstLastClipping(true);
+
+        YAxis yAxis = mLineChart.getAxisLeft();
+        yAxis.setTextColor(Color.BLACK);
+        yAxis.setAxisMaxValue(120f);
+        yAxis.setDrawGridLines(true);
+
+        YAxis yAxisRight = mLineChart.getAxisRight();
+        yAxisRight.setEnabled(false);
 
     }
 
@@ -118,9 +169,14 @@ public class MainActivity extends AppCompatActivity implements CurrencyReceiver.
 
             case R.id.action_show_logs:
                 mIsLogVisible = !mIsLogVisible;
-                item.setIcon(mIsLogVisible ? R.drawable.ic_keyboard_hide : R.drawable.ic_keyboard);
+                item.setIcon(mIsLogVisible ? R.drawable.ic_speaker_notes_on : R.drawable.ic_speaker_notes_off);
                 mLogLayout.setVisibility(mIsLogVisible ? View.VISIBLE : View.GONE);
                 break;
+
+            case R.id.action_show_fab:
+                mIsFabVisible = !mIsFabVisible;
+                item.setIcon(mIsFabVisible ? R.drawable.ic_remove : R.drawable.ic_add);
+                floatingActionButton.setVisibility(mIsFabVisible ? View.VISIBLE : View.GONE);
 
             default:
                 break;
@@ -146,14 +202,14 @@ public class MainActivity extends AppCompatActivity implements CurrencyReceiver.
 
                         if (currencyParcel != null) {
                             String message =
-                                    "Currency: " + currencyParcel.getBase() +
+                                    currencyParcel.getBase() +
                                             " - " + currencyParcel.getName() +
                                             ": " + currencyParcel.getRate();
                             LogUtils.log(LOG_TAG, message);
-                            long id = currencyTableHelper.insertCurrency(currencyParcel);
+                            long id = mCurrencyTableHelper.insertCurrency(currencyParcel);
                             Currency currency = new Currency();
                             try {
-                                currency = currencyTableHelper.getCurrency(id);
+                                currency = mCurrencyTableHelper.getCurrency(id);
                             } catch (SQLException e) {
                                 e.printStackTrace();
                                 LogUtils.log(LOG_TAG, "Currency retrieval failed!");
@@ -165,7 +221,7 @@ public class MainActivity extends AppCompatActivity implements CurrencyReceiver.
                                 LogUtils.log(LOG_TAG, dbmessage);
 
                                 NotificationUtils.showNotificationMessage(getApplicationContext(),
-                                        "Currency Exchange Rate", message);
+                                        message, "Tap to change alarm preferences.");
                             }
 
                             if (NotificationUtils.isAppInBackground(MainActivity.this)) {
@@ -176,6 +232,8 @@ public class MainActivity extends AppCompatActivity implements CurrencyReceiver.
                                     mServiceRepetition = AlarmUtils.REPEAT.REPEAT_EVERYDAY.ordinal();
                                     retrieveCurrencyExchangeRate();
                                 }
+                            } else {
+                                updateLineChart();
                             }
                         }
                     }
@@ -191,12 +249,13 @@ public class MainActivity extends AppCompatActivity implements CurrencyReceiver.
 
     private void initDb() {
         CurrencyDatabaseAdapter currencyDatabaseAdapter = new CurrencyDatabaseAdapter(this);
-        currencyTableHelper = new CurrencyTableHelper(currencyDatabaseAdapter);
+        mCurrencyTableHelper = new CurrencyTableHelper(currencyDatabaseAdapter);
     }
 
     private void initToolbar() {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        assert getSupportActionBar() != null;
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -311,8 +370,98 @@ public class MainActivity extends AppCompatActivity implements CurrencyReceiver.
 
     }
 
+    private void updateLineChart() {
+        mLineChart.setDescription("Currency Exchange Rate:" + mBaseCurrency + " - " + mTargetCurrency);
+        ArrayList<Currency> currencies = mCurrencyTableHelper.getCurrencyHistory(mBaseCurrency, mTargetCurrency);
+        LineData lineData = mLineChart.getData();
+        lineData.clearValues();
+
+        for (Currency currency : currencies) {
+            addChartEntry(currency.getDate(), currency.getRate());
+        }
+    }
+
+    private void addChartEntry(String date, double rate) {
+        LineData lineData = mLineChart.getData();
+
+        if (lineData != null) {
+            LineDataSet lineDataSet = lineData.getDataSetByIndex(0);
+
+            if (lineDataSet == null) {
+                lineDataSet = createSet();
+                lineData.addDataSet(lineDataSet);
+            }
+
+            if (!mLineChart.getData().getXVals().contains(date)) {
+                lineData.addXValue(date);
+            }
+
+            lineData.addEntry(new Entry((float) rate, lineDataSet.getEntryCount()), 0);
+            mLineChart.notifyDataSetChanged();
+
+        }
+
+    }
+
+    private LineDataSet createSet() {
+
+        LineDataSet lineDataSet = new LineDataSet(null, "Value");
+        lineDataSet.setDrawCubic(true);
+        lineDataSet.setCubicIntensity(0.2f);
+        lineDataSet.setAxisDependency(YAxis.AxisDependency.LEFT);
+        lineDataSet.setColor(ColorTemplate.getHoloBlue());
+        lineDataSet.setCircleColor(ColorTemplate.getHoloBlue());
+        lineDataSet.setLineWidth(2f);
+        lineDataSet.setCircleSize(4f);
+        lineDataSet.setFillAlpha(65);
+        lineDataSet.setFillColor(ColorTemplate.getHoloBlue());
+        lineDataSet.setHighLightColor(Color.CYAN);
+        lineDataSet.setValueTextColor(Color.BLACK);
+        lineDataSet.setValueTextSize(10f);
+        return lineDataSet;
+    }
+
+
     private void resetDownloads() {
         SharedPreferencesUtils.updateNumDownloads(this, 0);
+    }
+
+    private void addActionButtonListener() {
+        floatingActionButton = (FloatingActionButton) findViewById(R.id.fab);
+        floatingActionButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                PopupMenu popUpMenu = new PopupMenu(MainActivity.this, floatingActionButton);
+                popUpMenu.getMenuInflater().inflate(R.menu.popup_menu, popUpMenu.getMenu());
+                popUpMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        switch (item.getItemId()) {
+                            case R.id.clear_database:
+                                mCurrencyTableHelper.clearCurrencyTable();
+                                LogUtils.log(LOG_TAG, "Currency database cleared!");
+                                mLineChart.clearValues();
+                                updateLineChart();
+                                break;
+
+                            case R.id.show_graph:
+                                findViewById(R.id.currencyListLayout).setVisibility(View.GONE);
+                                mLineChart.setVisibility(View.VISIBLE);
+                                updateLineChart();
+                                break;
+
+                            case R.id.select_currency:
+                                findViewById(R.id.currencyListLayout).setVisibility(View.VISIBLE);
+                                mLineChart.setVisibility(View.GONE);
+                                break;
+                        }
+                        return true;
+                    }
+                });
+
+                popUpMenu.show();
+            }
+        });
     }
 
 }

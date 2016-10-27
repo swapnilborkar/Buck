@@ -101,6 +101,7 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="16dp"
                 android:clickable="true"
+                android:elevation="4dp"
                 android:src="@drawable/ic_menu"
                 app:backgroundTint="@color/colorAccent"
                 app:borderWidth="0dp"

@@ -31,7 +31,7 @@ public class NotificationUtils {
         }
 
         if (isAppInBackground(context)) {
-            int icon = R.mipmap.ic_launcher;
+            int icon = R.mipmap.ic_show_chart_white_48dp;
             Intent intent = new Intent(context, MainActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
             PendingIntent resultPendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
@@ -47,13 +47,13 @@ public class NotificationUtils {
                     .setAutoCancel(true)
                     .setContentIntent(resultPendingIntent)
                     .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
-                    .setColor(ContextCompat.getColor(context, R.color.colorPrimary))
+                    .setColor(ContextCompat.getColor(context, R.color.colorAccent))
                     .build();
 
             NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
             notificationManager.notify(Constants.NOTIFICATION_ID, notification);
         } else {
-            Toast.makeText(context, message, Toast.LENGTH_LONG).show();
+            Toast.makeText(context, title, Toast.LENGTH_LONG).show();
         }
 
     }
